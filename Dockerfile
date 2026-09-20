@@ -18,13 +18,13 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Entrypoint untuk generate key, cache config, dan menjalankan Apache
+# Entrypoint yang aman untuk environment production
 RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
     echo 'rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf' >> /usr/local/bin/entrypoint.sh && \
     echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
     echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
     echo 'php artisan config:clear' >> /usr/local/bin/entrypoint.sh && \
-    echo 'php artisan key:generate --force' >> /usr/local/bin/entrypoint.sh && \
+    echo 'export APP_KEY=$(php artisan key:generate --show)' >> /usr/local/bin/entrypoint.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/entrypoint.sh
 
