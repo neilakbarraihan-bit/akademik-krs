@@ -1,18 +1,16 @@
 FROM php:8.2-apache
 
-# Install ekstensi PHP, Composer, dan Node.js
+# Install ekstensi PHP, Composer, unzip, dan Node.js
 RUN docker-php-ext-install pdo pdo_mysql
+RUN apt-get update && apt-get install -y unzip git nodejs npm
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Install Node.js untuk kompilasi Vue assets
-RUN apt-get update && apt-get install -y nodejs npm
 
 COPY . /var/www/html
 
 # Install dependensi backend Composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Install dependensi frontend npm dan build Vue assets (Vite)
+# Install dependensi frontend npm dan build Vue assets
 RUN npm install && npm run build
 
 # Arahkan DocumentRoot Apache ke folder public Laravel
