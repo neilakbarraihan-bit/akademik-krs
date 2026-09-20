@@ -1,17 +1,14 @@
 FROM php:8.2-apache
 
-# Install ekstensi PHP, Composer, unzip, dan Node.js
+# Install ekstensi PHP, Composer, dan unzip
 RUN docker-php-ext-install pdo pdo_mysql
-RUN apt-get update && apt-get install -y unzip git nodejs npm
+RUN apt-get update && apt-get install -y unzip git
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . /var/www/html
 
-# Install dependensi backend Composer
+# Install dependensi backend Composer saja di server
 RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Install dependensi frontend npm dan build Vue assets
-RUN npm install && npm run build
 
 # Arahkan DocumentRoot Apache ke folder public Laravel
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
@@ -22,8 +19,8 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Entrypoint untuk membersihkan konflik MPM Apache saat runtime
 RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
     echo 'rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf' >> /usr/local/bin/entrypoint.sh && \
-    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
-    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
+    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.load /usr/local/bin/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
+    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.conf /usr/local/bin/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/entrypoint.sh
 
