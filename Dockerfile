@@ -1,6 +1,11 @@
 FROM php:8.2-apache
 RUN docker-php-ext-install pdo pdo_mysql
-RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork
+
+# Hapus modul MPM event/worker yang bentrok secara paksa dari direktori mods-enabled
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* \
+    && ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/ \
+    && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/
+
 COPY . /var/www/html
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
