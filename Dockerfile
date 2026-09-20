@@ -7,7 +7,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . /var/www/html
 
-# Install dependensi backend Composer saja di server
+# Install dependensi backend Composer di server
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Arahkan DocumentRoot Apache ke folder public Laravel
@@ -16,11 +16,11 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Entrypoint untuk membersihkan konflik MPM Apache saat runtime
+# Entrypoint untuk membersihkan dan mengaktifkan mpm_prefork ke direktori apache2 yang benar
 RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
     echo 'rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf' >> /usr/local/bin/entrypoint.sh && \
-    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.load /usr/local/bin/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
-    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.conf /usr/local/bin/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
+    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
+    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/entrypoint.sh
 
