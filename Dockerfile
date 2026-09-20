@@ -3,16 +3,13 @@ RUN docker-php-ext-install pdo pdo_mysql
 
 COPY . /var/www/html
 
-# Arahkan DocumentRoot Apache langsung ke folder public
+# Arahkan DocumentRoot Apache ke folder public
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Buat salinan fisik atau symlink folder vendor agar terbaca langsung di dalam public/vendor
-RUN rm -rf /var/www/html/public/vendor && cp -r /var/www/html/vendor /var/www/html/public/vendor
-
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Gunakan entrypoint untuk membersihkan modul MPM agar tetap aktif stabil
+# Entrypoint untuk membersihkan konflik MPM Apache saat runtime
 RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
     echo 'rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf' >> /usr/local/bin/entrypoint.sh && \
     echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
