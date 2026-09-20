@@ -9,4 +9,5 @@
 <body style="margin: 0; background: #f8f9fa;">
     <div id="app"></div>
 </body>
-</html>
+
+</html> 
