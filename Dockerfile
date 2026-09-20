@@ -18,13 +18,13 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Entrypoint untuk environment production
+# Entrypoint dengan path mods-enabled yang benar dan pembuatan .env yang aman
 RUN echo '#!/bin/bash' > /usr/local/bin/entrypoint.sh && \
     echo 'rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf' >> /usr/local/bin/entrypoint.sh && \
-    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.load /usr/local/bin/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
-    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.conf /usr/local/bin/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
-    echo 'cp .env.example .env 2>/dev/null || touch .env' >> /usr/local/bin/entrypoint.sh && \
-    echo 'php artisan key:generate --force' >> /usr/local/bin/entrypoint.sh && \
+    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
+    echo 'ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/' >> /usr/local/bin/entrypoint.sh && \
+    echo 'cp -n .env.example .env || touch .env' >> /usr/local/bin/entrypoint.sh && \
+    echo 'php artisan key:generate --force --no-interaction' >> /usr/local/bin/entrypoint.sh && \
     echo 'php artisan config:cache' >> /usr/local/bin/entrypoint.sh && \
     echo 'php artisan route:cache' >> /usr/local/bin/entrypoint.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/entrypoint.sh && \
