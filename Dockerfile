@@ -1,8 +1,7 @@
 FROM php:8.2-apache
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Hapus modul MPM event/worker yang bentrok secara paksa dari direktori mods-enabled
-RUN rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* \
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* /etc/apache2/mods-enabled/mpm_prefork.* \
     && ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/ \
     && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/
 
